@@ -1,0 +1,190 @@
+{
+  "@@locale": "en",
+  "appTitle": "DinoVigilo",
+  "@appTitle": {
+    "description": "The application title"
+  },
+  "objectives": "Objectives",
+  "today": "Today",
+  "history": "History",
+  "collection": "Collection",
+  "incubator": "Incubator",
+  "streak": "Streak",
+  "objectivesCompleted": "{count, plural, =0{No objectives completed} =1{1 objective completed} other{{count} objectives completed}}",
+  "@objectivesCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakDays": "{days, plural, =0{No streak} =1{1 day streak} other{{days} day streak}}",
+  "@streakDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "eggHatching": "Your egg is hatching!",
+  "newEggCreated": "New egg created!",
+  "recoveryMode": "Recovery Mode",
+  "recoveryProgress": "{days, plural, =1{1 more perfect day needed} other{{days} more perfect days needed}}",
+  "@recoveryProgress": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeBack": "Welcome back! Your eggs are cooking again!",
+  "noObjectivesYet": "No objectives yet. Create one to get started!",
+  "createObjective": "Create Objective",
+  "objectiveTitle": "Objective Title",
+  "objectiveDescription": "Description (optional)",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "complete": "Complete",
+  "incomplete": "Incomplete",
+  "settings": "Settings",
+  "notifications": "Notifications",
+  "reminderTime": "Reminder Time",
+  "language": "Language",
+  "perfectDay": "Perfect Day!",
+  "allObjectivesCompleted": "All objectives completed for today!",
+  "deleteObjective": "Delete Objective",
+  "deleteObjectiveConfirmation": "Delete \"{title}\"? This cannot be undone.",
+  "@deleteObjectiveConfirmation": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "objectiveCreated": "Objective created",
+  "objectiveUpdated": "Objective updated",
+  "objectiveDeleted": "Objective deleted",
+  "editObjective": "Edit Objective",
+  "titleRequired": "Title is required",
+  "sprint": "Sprint",
+  "sprints": "Sprints",
+  "configureSprint": "Configure Sprint",
+  "sprintStartDate": "Sprint Start Date",
+  "day": "Day",
+  "dayN": "Day {n}",
+  "@dayN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "selectObjectivesForDay": "Select objectives for this day",
+  "noActiveSprint": "No active sprint. Create one to schedule your objectives!",
+  "createSprint": "Create Sprint",
+  "editSprint": "Edit Sprint",
+  "sprintCreated": "Sprint created",
+  "sprintUpdated": "Sprint updated",
+  "applyToAllDays": "Apply to all days",
+  "clearDay": "Clear day",
+  "sprintActive": "Active Sprint",
+  "sprintDuration": "14 days",
+  "startDate": "Start Date",
+  "noObjectivesAvailable": "No objectives available. Create objectives first!",
+  "sprintDaysRemaining": "{days, plural, =1{1 day remaining} other{{days} days remaining}}",
+  "@sprintDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "objectivesAssigned": "{count, plural, =0{No objectives} =1{1 objective} other{{count} objectives}}",
+  "@objectivesAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyFromPreviousDay": "Copy from previous day",
+  "selectStartDate": "Select start date",
+  "sprintEndsOn": "Ends on {date}",
+  "@sprintEndsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noEggsYet": "No eggs yet. Keep your streak going!",
+  "eggsIncubating": "{count, plural, =1{1 egg incubating} other{{count} eggs incubating}}",
+  "@eggsIncubating": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysProgress": "{current}/{total} days",
+  "@daysProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "paused": "Paused",
+  "speciesDiscovered": "{count}/{total} species discovered",
+  "@speciesDiscovered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noCollectionYet": "No dinosaurs yet. Hatch your first egg!",
+  "congratulations": "Congratulations!",
+  "newDinosaurHatched": "A new dinosaur hatched!",
+  "awesome": "Awesome!",
+  "hatchedOn": "Hatched on {date}",
+  "@hatchedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noDataForDay": "No objectives for this day",
+  "currentStreak": "Current Streak",
+  "longestStreak": "Longest Streak",
+  "totalPerfectDays": "Total Perfect Days",
+  "totalDinosaurs": "Dinosaurs Hatched",
+  "completionRate": "Completion Rate",
+  "statistics": "Statistics",
+  "mon": "Mon",
+  "tue": "Tue",
+  "wed": "Wed",
+  "thu": "Thu",
+  "fri": "Fri",
+  "sat": "Sat",
+  "sun": "Sun",
+  "enableNotifications": "Enable Notifications",
+  "dailyReminderTime": "Daily Reminder Time",
+  "systemDefault": "System",
+  "english": "English",
+  "spanish": "Español",
+  "about": "About",
+  "version": "Version",
+  "streakBroken": "Streak Broken",
+  "streakBrokenMessage": "Don't give up! Complete your recovery days to get back on track.",
+  "appearance": "Appearance"
+}

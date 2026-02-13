@@ -1,0 +1,71 @@
+name: dinovigilo
+description: "Build streaks, hatch dinosaurs - A gamified objective tracker"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.4.0
+  riverpod_annotation: ^2.3.0
+
+  # Database
+  drift: ^2.14.0
+  sqlite3_flutter_libs: ^0.5.0
+  path_provider: ^2.1.0
+  path: ^1.8.3
+
+  # Data Models
+  freezed_annotation: ^2.4.0
+  json_annotation: ^4.8.0
+
+  # Notifications
+  flutter_local_notifications: ^17.0.0
+  timezone: ^0.9.2
+
+  # UI
+  intl: ^0.20.2
+  flutter_animate: ^4.5.0
+
+  # Settings Persistence
+  shared_preferences: ^2.2.0
+
+  # Utilities
+  uuid: ^4.2.0
+  logger: ^2.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+  # Code Generation
+  build_runner: ^2.4.0
+  drift_dev: ^2.14.0
+  freezed: ^2.4.0
+  json_serializable: ^6.7.0
+  riverpod_generator: ^2.3.0
+  riverpod_lint: ^2.3.0
+  custom_lint: ^0.6.0
+
+  # Testing
+  mocktail: ^1.0.1
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/dinosaurs/common/
+    - assets/dinosaurs/uncommon/
+    - assets/dinosaurs/rare/
+    - assets/dinosaurs/epic/
+    - assets/dinosaurs/legendary/
+    - assets/icons/
