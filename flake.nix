@@ -37,6 +37,7 @@
             jdk17
             android-sdk
             git
+            gh
             curl
             unzip
           ];
