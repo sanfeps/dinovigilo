@@ -21,7 +21,7 @@ class DaySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final weekdayName = DateFormat.EEEE().format(date);
+    final dateLabel = DateFormat('EEE, MMM d').format(date);
 
     return InkWell(
       onTap: onTap,
@@ -74,7 +74,7 @@ class DaySelector extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    weekdayName,
+                    dateLabel,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
