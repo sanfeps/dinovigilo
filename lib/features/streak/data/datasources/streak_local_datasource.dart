@@ -28,6 +28,7 @@ class StreakLocalDatasource {
       lastPerfectDay: Value(status.lastPerfectDay),
       isActive: Value(status.isActive),
       recoveryDaysNeeded: Value(status.recoveryDaysNeeded),
+      preBreakStreak: Value(status.preBreakStreak),
     ));
   }
 
@@ -167,6 +168,7 @@ class StreakLocalDatasource {
       lastPerfectDay: row.lastPerfectDay,
       isActive: row.isActive,
       recoveryDaysNeeded: row.recoveryDaysNeeded,
+      preBreakStreak: row.preBreakStreak,
     );
   }
 

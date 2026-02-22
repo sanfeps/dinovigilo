@@ -28,7 +28,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -43,6 +43,12 @@ class AppDatabase extends _$AppDatabase {
           // Recreate PendingEggs with new columns
           await m.deleteTable('pending_eggs');
           await m.createTable(pendingEggs);
+        }
+        if (from < 3) {
+          await m.addColumn(
+            streakStatusTable,
+            streakStatusTable.preBreakStreak,
+          );
         }
       },
     );

@@ -99,6 +99,8 @@ class StreakStatusTable extends Table {
   DateTimeColumn get lastPerfectDay => dateTime().nullable()();
   BoolColumn get isActive => boolean()();
   IntColumn get recoveryDaysNeeded => integer()();
+  IntColumn get preBreakStreak =>
+      integer().withDefault(const Constant(0))();
 
   @override
   Set<Column> get primaryKey => {id};

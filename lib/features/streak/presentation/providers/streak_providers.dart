@@ -173,3 +173,119 @@ Future<void> processDayEndOnStartup(
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Yesterday Buffer Feature
+// ---------------------------------------------------------------------------
+
+/// Objectives assigned to yesterday's sprint day.
+@riverpod
+Future<List<Objective>> yesterdayObjectives(YesterdayObjectivesRef ref) async {
+  ref.watch(activeSprintStreamProvider);
+  final useCase = ref.watch(getObjectivesForDayUseCaseProvider);
+  final yesterday = DateTime.now().subtract(const Duration(days: 1));
+  final result = await useCase.execute(yesterday);
+  return result.when(
+    success: (objectives) => objectives,
+    failure: (_) => [],
+  );
+}
+
+/// Live stream of completions for yesterday.
+@riverpod
+Stream<List<DailyCompletion>> yesterdayCompletionsStream(
+  YesterdayCompletionsStreamRef ref,
+) {
+  final repository = ref.watch(streakRepositoryProvider);
+  final yesterday = DateTime.now().subtract(const Duration(days: 1));
+  return repository.watchCompletionsForDate(yesterday);
+}
+
+/// Ensures DailyCompletion rows exist for yesterday (idempotent).
+/// Only runs when the buffer is actually available.
+@riverpod
+Future<void> initializeYesterdayCompletions(
+  InitializeYesterdayCompletionsRef ref,
+) async {
+  final isAvailable = ref.watch(yesterdayBufferAvailableProvider);
+  if (!isAvailable) return;
+
+  final objectives = await ref.watch(yesterdayObjectivesProvider.future);
+  if (objectives.isEmpty) return;
+
+  final repository = ref.watch(streakRepositoryProvider);
+  final yesterday = DateTime.now().subtract(const Duration(days: 1));
+  final objectiveIds = objectives.map((o) => o.id).toList();
+  await repository.ensureCompletionsForDate(yesterday, objectiveIds);
+}
+
+/// True when the yesterday-buffer grace card should be shown.
+@riverpod
+bool yesterdayBufferAvailable(YesterdayBufferAvailableRef ref) {
+  final streakAsync = ref.watch(streakStatusStreamProvider);
+  final objectivesAsync = ref.watch(yesterdayObjectivesProvider);
+
+  final status = streakAsync.valueOrNull;
+  final objectives = objectivesAsync.valueOrNull;
+
+  if (status == null || objectives == null) return false;
+  return status.isYesterdayBufferAvailable && objectives.isNotEmpty;
+}
+
+/// Notifier that performs the streak restoration when the buffer is used.
+@riverpod
+class StreakBufferRestoreNotifier extends _$StreakBufferRestoreNotifier {
+  @override
+  void build() {}
+
+  Future<void> restore() async {
+    final streakRepo = ref.read(streakRepositoryProvider);
+    final statusResult = await streakRepo.getStreakStatus();
+    if (statusResult.isFailure) return;
+
+    final status = statusResult.data;
+    if (status.preBreakStreak == 0) return; // Guard: already restored
+
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final yesterdayOnly = DateTime(
+      yesterday.year,
+      yesterday.month,
+      yesterday.day,
+    );
+
+    final newStreak = status.preBreakStreak + 1;
+    final newLongest =
+        newStreak > status.longestStreak ? newStreak : status.longestStreak;
+
+    final restoredStatus = status.copyWith(
+      currentStreak: newStreak,
+      isActive: true,
+      recoveryDaysNeeded: 0,
+      preBreakStreak: 0,
+      totalPerfectDays: status.totalPerfectDays + 1,
+      longestStreak: newLongest,
+      lastPerfectDay: yesterdayOnly,
+    );
+
+    await streakRepo.updateStreakStatus(restoredStatus);
+
+    // Resume paused eggs and advance by the one perfect day
+    final resumeEggs = ref.read(resumeAllEggsUseCaseProvider);
+    await resumeEggs.execute();
+
+    final advanceEggs = ref.read(advanceEggsUseCaseProvider);
+    await advanceEggs.execute();
+
+    // Check if a new egg was earned
+    final checkCreation = ref.read(checkEggCreationUseCaseProvider);
+    await checkCreation.execute(restoredStatus);
+
+    // Check if any eggs hatched
+    final checkHatching = ref.read(checkEggHatchingUseCaseProvider);
+    final hatchResult = await checkHatching.execute();
+    if (hatchResult.isSuccess && hatchResult.data.isNotEmpty) {
+      ref.read(recentlyHatchedDinosaursProvider.notifier).state =
+          hatchResult.data;
+    }
+  }
+}

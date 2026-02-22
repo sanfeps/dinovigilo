@@ -8,6 +8,7 @@ import 'package:dinovigilo/features/streak/presentation/providers/streak_provide
 import 'package:dinovigilo/features/streak/presentation/widgets/daily_checklist.dart';
 import 'package:dinovigilo/features/streak/presentation/widgets/perfect_day_banner.dart';
 import 'package:dinovigilo/features/streak/presentation/widgets/streak_status_card.dart';
+import 'package:dinovigilo/features/streak/presentation/widgets/yesterday_buffer_card.dart';
 import 'package:dinovigilo/shared/extensions/context_extensions.dart';
 import 'package:dinovigilo/shared/widgets/empty_state.dart';
 import 'package:dinovigilo/shared/widgets/error_display.dart';
@@ -23,6 +24,7 @@ class TodayScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final streakAsync = ref.watch(streakStatusStreamProvider);
     final todayObjectivesAsync = ref.watch(todayObjectivesProvider);
+    final showBuffer = ref.watch(yesterdayBufferAvailableProvider);
 
     // Trigger day-end processing on startup
     ref.watch(processDayEndOnStartupProvider);
@@ -49,6 +51,13 @@ class TodayScreen extends ConsumerWidget {
       body: todayObjectivesAsync.when(
         data: (objectives) {
           if (objectives.isEmpty) {
+            // No today objectives, but still show buffer if available
+            if (showBuffer) {
+              return const SingleChildScrollView(
+                padding: EdgeInsets.all(16),
+                child: YesterdayBufferCard(),
+              );
+            }
             return EmptyState(
               message: context.l10n.noActiveSprint,
               icon: Icons.today_outlined,
@@ -57,7 +66,8 @@ class TodayScreen extends ConsumerWidget {
 
           // Wait for initialization to complete before showing completions
           return initAsync.when(
-            data: (_) => _buildBody(context, ref, objectives, streakAsync),
+            data: (_) =>
+                _buildBody(context, ref, objectives, streakAsync, showBuffer),
             loading: () => const LoadingIndicator(),
             error: (error, _) => ErrorDisplay(
               message: error.toString(),
@@ -80,6 +90,7 @@ class TodayScreen extends ConsumerWidget {
     WidgetRef ref,
     List<Objective> objectives,
     AsyncValue streakAsync,
+    bool showBuffer,
   ) {
     final completionsAsync = ref.watch(todayCompletionsStreamProvider);
     final eggsAsync = ref.watch(pendingEggsStreamProvider);
@@ -89,6 +100,10 @@ class TodayScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (showBuffer) ...[
+            const YesterdayBufferCard(),
+            const SizedBox(height: 8),
+          ],
           streakAsync.when(
             data: (status) => StreakStatusCard(status: status),
             loading: () => const SizedBox.shrink(),

@@ -71,12 +71,14 @@ class ProcessDayEndUseCase {
           status = status.copyWith(
             isActive: true,
             recoveryDaysNeeded: 0,
+            preBreakStreak: 0,
             totalPerfectDays: newTotalPerfectDays,
             lastPerfectDay: dayOnly,
           );
         } else {
           status = status.copyWith(
             recoveryDaysNeeded: newRecovery,
+            preBreakStreak: 0,
             totalPerfectDays: newTotalPerfectDays,
             lastPerfectDay: dayOnly,
           );
@@ -85,17 +87,19 @@ class ProcessDayEndUseCase {
     } else {
       // Not a perfect day
       if (status.isActive && status.currentStreak > 0) {
-        // Break the streak - reset currentStreak to 0
+        // Break the streak - save current streak for yesterday-buffer grace period
         status = status.copyWith(
           isActive: false,
+          preBreakStreak: status.currentStreak,
           currentStreak: 0,
           recoveryDaysNeeded: AppConstants.recoveryDaysRequired,
           lastPerfectDay: dayOnly,
         );
       } else if (!status.isActive) {
-        // Already in recovery, reset recovery counter
+        // Already in recovery, buffer expired — reset counter
         status = status.copyWith(
           recoveryDaysNeeded: AppConstants.recoveryDaysRequired,
+          preBreakStreak: 0,
           lastPerfectDay: dayOnly,
         );
       }
