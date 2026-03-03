@@ -229,10 +229,19 @@ class DebugScreen extends ConsumerWidget {
     final repo = ref.read(streakRepositoryProvider);
     final result = await repo.getStreakStatus();
     if (result.isFailure) return;
-    await repo.updateStreakStatus(result.data.copyWith(
+    final current = result.data;
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final yesterdayOnly =
+        DateTime(yesterday.year, yesterday.month, yesterday.day);
+    // Simulates what processDayEnd does when a streak breaks:
+    // saves preBreakStreak and sets lastPerfectDay to yesterday so the
+    // yesterday-buffer card appears in the Today tab.
+    await repo.updateStreakStatus(current.copyWith(
       isActive: false,
+      preBreakStreak: current.currentStreak > 0 ? current.currentStreak : 5,
       currentStreak: 0,
       recoveryDaysNeeded: 3,
+      lastPerfectDay: yesterdayOnly,
     ));
   }
 
@@ -384,6 +393,8 @@ class _StreakStatusCard extends StatelessWidget {
             _row('Recovery Days Needed', '${status.recoveryDaysNeeded}'),
             _row('Last Perfect Day',
                 status.lastPerfectDay?.toString() ?? 'none'),
+            _row('Pre-Break Streak', '${status.preBreakStreak}'),
+            _row('Buffer Available', '${status.isYesterdayBufferAvailable}'),
             _row('In Recovery', '${status.isInRecoveryMode}'),
           ],
         ),
