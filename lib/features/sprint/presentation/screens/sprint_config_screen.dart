@@ -23,6 +23,7 @@ class SprintConfigScreen extends ConsumerStatefulWidget {
 
 class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
   DateTime _startDate = DateTime.now();
+  int _durationDays = 14;
   int? _expandedDay;
   bool _loaded = false;
   Sprint? _existingSprint;
@@ -42,6 +43,7 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
   void _loadFromSprint(Sprint sprint) {
     _existingSprint = sprint;
     _startDate = sprint.startDate;
+    _durationDays = sprint.durationDays;
     _dayObjectives.clear();
     for (final mapping in sprint.dayMappings) {
       _dayObjectives
@@ -153,7 +155,8 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
                           Text(
                             context.l10n.sprintEndsOn(
                               dateFormat.format(
-                                _startDate.add(const Duration(days: 14)),
+                                _startDate
+                                    .add(Duration(days: _durationDays)),
                               ),
                             ),
                             style: context.textTheme.bodySmall?.copyWith(
@@ -171,11 +174,38 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
           ),
         ),
 
+        // Week length selector
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: SegmentedButton<int>(
+            segments: const [
+              ButtonSegment(value: 7, label: Text('1 week')),
+              ButtonSegment(value: 14, label: Text('2 weeks')),
+              ButtonSegment(value: 21, label: Text('3 weeks')),
+              ButtonSegment(value: 28, label: Text('4 weeks')),
+            ],
+            selected: {_durationDays},
+            onSelectionChanged: (selected) {
+              final newDuration = selected.first;
+              setState(() {
+                _durationDays = newDuration;
+                // Remove objectives assigned to days beyond new length
+                _dayObjectives.removeWhere(
+                  (day, _) => day >= newDuration,
+                );
+                if (_expandedDay != null && _expandedDay! >= newDuration) {
+                  _expandedDay = null;
+                }
+              });
+            },
+          ),
+        ),
+
         // Day list
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 14,
+            itemCount: _durationDays,
             itemBuilder: (context, dayIndex) {
               final dayDate = _startDate.add(Duration(days: dayIndex));
               final isExpanded = _expandedDay == dayIndex;
@@ -218,7 +248,7 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
                           setState(() {
                             final currentSet =
                                 _dayObjectives[dayIndex] ?? {};
-                            for (var i = 0; i < 14; i++) {
+                            for (var i = 0; i < _durationDays; i++) {
                               _dayObjectives[i] = Set.from(currentSet);
                             }
                           });
@@ -266,10 +296,13 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
   }
 
   Future<void> _pickStartDate(BuildContext context) async {
+    final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
+    final firstDate =
+        _startDate.isBefore(sevenDaysAgo) ? _startDate : sevenDaysAgo;
     final picked = await showDatePicker(
       context: context,
       initialDate: _startDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 7)),
+      firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: context.l10n.selectStartDate,
     );
@@ -290,7 +323,10 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
     if (_existingSprint != null) {
       final useCase = ref.read(updateSprintUseCaseProvider);
       final result = await useCase.execute(
-        sprint: _existingSprint!.copyWith(startDate: _startDate),
+        sprint: _existingSprint!.copyWith(
+          startDate: _startDate,
+          durationDays: _durationDays,
+        ),
         dayObjectiveIds: dayObjectiveIds,
       );
 
@@ -308,6 +344,7 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
       final result = await useCase.execute(
         startDate: _startDate,
         dayObjectiveIds: dayObjectiveIds,
+        durationDays: _durationDays,
       );
 
       if (!mounted) return;
