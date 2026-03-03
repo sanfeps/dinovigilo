@@ -40,6 +40,7 @@ class SprintLocalDatasource {
               id: sprint.id,
               startDate: sprint.startDate,
               isActive: sprint.isActive,
+              durationDays: Value(sprint.durationDays),
             ),
           );
 
@@ -67,6 +68,7 @@ class SprintLocalDatasource {
         SprintsCompanion(
           startDate: Value(sprint.startDate),
           isActive: Value(sprint.isActive),
+          durationDays: Value(sprint.durationDays),
         ),
       );
 
@@ -128,6 +130,7 @@ class SprintLocalDatasource {
       startDate: row.startDate as DateTime,
       dayMappings: mappings,
       isActive: row.isActive as bool,
+      durationDays: row.durationDays as int,
     );
   }
 }

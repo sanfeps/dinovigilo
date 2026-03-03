@@ -1,3 +1,4 @@
+import 'package:dinovigilo/core/constants/app_constants.dart';
 import 'package:dinovigilo/features/sprint/domain/entities/day_objective_mapping.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,11 +12,13 @@ class Sprint with _$Sprint {
     required DateTime startDate,
     required List<DayObjectiveMapping> dayMappings,
     required bool isActive,
+    @Default(AppConstants.sprintDurationDays) int durationDays,
   }) = _Sprint;
 
   const Sprint._();
 
-  DateTime get endDate => startDate.add(const Duration(days: 14));
+  DateTime get endDate =>
+      startDate.add(Duration(days: durationDays));
 
   bool isDateInSprint(DateTime date) {
     final dateOnly = DateTime(date.year, date.month, date.day);

@@ -14,6 +14,8 @@ class Sprints extends Table {
   TextColumn get id => text()();
   DateTimeColumn get startDate => dateTime()();
   BoolColumn get isActive => boolean()();
+  IntColumn get durationDays =>
+      integer().withDefault(const Constant(14))();
 
   @override
   Set<Column> get primaryKey => {id};

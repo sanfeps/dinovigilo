@@ -28,7 +28,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -49,6 +49,9 @@ class AppDatabase extends _$AppDatabase {
             streakStatusTable,
             streakStatusTable.preBreakStreak,
           );
+        }
+        if (from < 4) {
+          await m.addColumn(sprints, sprints.durationDays);
         }
       },
     );

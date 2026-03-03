@@ -1,3 +1,4 @@
+import 'package:dinovigilo/core/constants/app_constants.dart';
 import 'package:dinovigilo/core/error/failures.dart';
 import 'package:dinovigilo/core/utils/result.dart';
 import 'package:dinovigilo/features/sprint/domain/entities/day_objective_mapping.dart';
@@ -13,6 +14,7 @@ class CreateSprintUseCase {
   Future<Result<Sprint>> execute({
     required DateTime startDate,
     required Map<int, List<String>> dayObjectiveIds,
+    int durationDays = AppConstants.sprintDurationDays,
   }) async {
     if (dayObjectiveIds.isEmpty) {
       return Result.failure(
@@ -50,6 +52,7 @@ class CreateSprintUseCase {
       startDate: DateTime(startDate.year, startDate.month, startDate.day),
       dayMappings: mappings,
       isActive: true,
+      durationDays: durationDays,
     );
 
     return _repository.create(sprint);
