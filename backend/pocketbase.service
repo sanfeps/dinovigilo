@@ -1,0 +1,20 @@
+[Unit]
+Description=PocketBase
+After=network.target
+
+[Service]
+Type=simple
+User=pocketbase
+Group=pocketbase
+WorkingDirectory=/opt/pocketbase
+ExecStart=/opt/pocketbase/pocketbase serve --http=127.0.0.1:8090 --dir=/var/lib/pocketbase/pb_data --publicDir=/opt/pocketbase/pb_public --hooksDir=/opt/pocketbase/pb_hooks --migrationsDir=/opt/pocketbase/pb_migrations
+Restart=always
+RestartSec=5
+LimitNOFILE=4096
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

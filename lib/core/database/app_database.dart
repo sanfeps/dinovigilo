@@ -28,7 +28,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -51,7 +51,29 @@ class AppDatabase extends _$AppDatabase {
           );
         }
         if (from < 4) {
-          await m.addColumn(sprints, sprints.durationDays);
+          await customStatement(
+            "ALTER TABLE sprints ADD COLUMN duration_days INTEGER NOT NULL DEFAULT 14",
+          );
+        }
+        if (from < 5) {
+          // Drop duration_days column and clean up day mappings
+          // outside the weekly cycle (dayOfSprint >= 7).
+          await customStatement(
+            'DELETE FROM day_objective_mappings WHERE day_of_sprint >= 7',
+          );
+          await customStatement('ALTER TABLE sprints DROP COLUMN duration_days');
+        }
+        if (from < 6) {
+          // Switch day_of_sprint from start-date offset to weekday index
+          // (0=Mon..6=Sun) using each sprint's old start_date, then drop it.
+          await customStatement('''
+            UPDATE day_objective_mappings
+            SET day_of_sprint = (day_of_sprint + (
+              SELECT ((CAST(strftime('%w', start_date, 'unixepoch') AS INTEGER) + 6) % 7)
+              FROM sprints WHERE sprints.id = day_objective_mappings.sprint_id
+            )) % 7
+          ''');
+          await customStatement('ALTER TABLE sprints DROP COLUMN start_date');
         }
       },
     );

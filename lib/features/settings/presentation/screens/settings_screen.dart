@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:dinovigilo/features/auth/domain/entities/auth_session.dart';
+import 'package:dinovigilo/features/auth/presentation/providers/auth_providers.dart';
+import 'package:dinovigilo/features/auth/presentation/screens/auth_screen.dart';
+import 'package:dinovigilo/features/friends/presentation/screens/friends_screen.dart';
 import 'package:dinovigilo/features/settings/presentation/providers/settings_providers.dart';
 import 'package:dinovigilo/shared/extensions/context_extensions.dart';
 import 'package:dinovigilo/shared/theme/app_colors.dart';
@@ -23,6 +27,16 @@ class SettingsScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Account Section
+              Text(
+                context.l10n.account,
+                style: context.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const _AccountCard(),
+              const SizedBox(height: 24),
               // Notifications Section
               Text(
                 context.l10n.notifications,
@@ -157,6 +171,131 @@ class SettingsScreen extends ConsumerWidget {
         loading: () => const LoadingIndicator(),
         error: (_, __) => const SizedBox.shrink(),
       ),
+    );
+  }
+}
+
+class _AccountCard extends ConsumerWidget {
+  const _AccountCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sessionAsync = ref.watch(authSessionProvider);
+
+    return Card(
+      child: sessionAsync.when(
+        data: (session) => session == null
+            ? _SignedOutTile(
+                onSignIn: () => AuthScreen.push(context),
+                onSignUp: () => AuthScreen.push(context, signUp: true),
+              )
+            : _SignedInTile(
+                session: session,
+                onSignOut: () => _signOut(ref),
+              ),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => _SignedOutTile(
+          onSignIn: () => AuthScreen.push(context),
+          onSignUp: () => AuthScreen.push(context, signUp: true),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _signOut(WidgetRef ref) async {
+    final useCase = await ref.read(signOutUseCaseProvider.future);
+    await useCase.execute();
+  }
+}
+
+class _SignedOutTile extends StatelessWidget {
+  const _SignedOutTile({required this.onSignIn, required this.onSignUp});
+
+  final VoidCallback onSignIn;
+  final VoidCallback onSignUp;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            context.l10n.notSignedIn,
+            style: context.textTheme.titleSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.l10n.signInToConnect,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onSignIn,
+                  child: Text(context.l10n.signIn),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton(
+                  onPressed: onSignUp,
+                  child: Text(context.l10n.signUp),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SignedInTile extends StatelessWidget {
+  const _SignedInTile({required this.session, required this.onSignOut});
+
+  final AuthSession session;
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ListTile(
+          leading: CircleAvatar(
+            backgroundColor: AppColors.surfaceVariant,
+            child: Text(
+              session.user.avatarEmoji.isEmpty
+                  ? '🦖'
+                  : session.user.avatarEmoji,
+              style: const TextStyle(fontSize: 20),
+            ),
+          ),
+          title: Text(session.user.displayName.isEmpty
+              ? session.user.username
+              : session.user.displayName),
+          subtitle: Text('@${session.user.username}'),
+          trailing: TextButton(
+            onPressed: onSignOut,
+            child: Text(context.l10n.signOut),
+          ),
+        ),
+        const Divider(height: 1),
+        ListTile(
+          leading: const Icon(Icons.people_outline),
+          title: Text(context.l10n.friends),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => FriendsScreen.push(context),
+        ),
+      ],
     );
   }
 }

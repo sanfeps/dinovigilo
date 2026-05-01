@@ -1,0 +1,22 @@
+{
+    email admin@example.com
+}
+
+# Replace with your domain. The DNS-01 plugin proves ownership without
+# the host needing to be reachable from the public internet — useful when
+# the host only listens on a tailnet IP.
+pocketbase.example.com {
+    tls {
+        dns njalla {env.NJALLA_TOKEN}
+    }
+    encode gzip
+    reverse_proxy 127.0.0.1:8090
+
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+}

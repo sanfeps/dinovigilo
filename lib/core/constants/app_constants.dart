@@ -1,8 +1,8 @@
 class AppConstants {
   AppConstants._();
 
-  /// Number of days in a sprint cycle.
-  static const int sprintDurationDays = 14;
+  /// Number of days in the weekly objective cycle. Cycle repeats indefinitely.
+  static const int weekLengthDays = 7;
 
   /// Number of perfect days required to earn an egg.
   static const int daysPerEgg = 30;

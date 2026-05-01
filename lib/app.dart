@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dinovigilo/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:dinovigilo/features/auth/presentation/providers/auth_providers.dart';
 import 'package:dinovigilo/features/debug/debug_screen.dart';
 import 'package:dinovigilo/features/dinosaurs/domain/entities/dinosaur.dart';
 import 'package:dinovigilo/features/dinosaurs/presentation/providers/egg_providers.dart';
@@ -54,6 +55,22 @@ class _HomeScreenState extends ConsumerState<_HomeScreen> {
     const CollectionScreen(),
     const DebugScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh the cached session once at startup so an expired token gets
+    // cleared (the repo handles 401 → signOut). Fire-and-forget; the auth
+    // stream will emit any state change.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final repo = await ref.read(authRepositoryProvider.future);
+        await repo.refresh();
+      } catch (_) {
+        // Refresh is best-effort; failures are surfaced on the next API call.
+      }
+    });
+  }
 
   void _navigateToTab(int index) {
     setState(() => _currentIndex = index);

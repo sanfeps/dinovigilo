@@ -38,9 +38,7 @@ class SprintLocalDatasource {
       await _db.into(_db.sprints).insert(
             SprintsCompanion.insert(
               id: sprint.id,
-              startDate: sprint.startDate,
               isActive: sprint.isActive,
-              durationDays: Value(sprint.durationDays),
             ),
           );
 
@@ -66,9 +64,7 @@ class SprintLocalDatasource {
             ..where((t) => t.id.equals(sprint.id)))
           .write(
         SprintsCompanion(
-          startDate: Value(sprint.startDate),
           isActive: Value(sprint.isActive),
-          durationDays: Value(sprint.durationDays),
         ),
       );
 
@@ -127,10 +123,8 @@ class SprintLocalDatasource {
   Sprint _rowToEntity(dynamic row, List<DayObjectiveMapping> mappings) {
     return Sprint(
       id: row.id as String,
-      startDate: row.startDate as DateTime,
       dayMappings: mappings,
       isActive: row.isActive as bool,
-      durationDays: row.durationDays as int,
     );
   }
 }

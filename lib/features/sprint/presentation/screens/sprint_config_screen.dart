@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:dinovigilo/core/constants/app_constants.dart';
 import 'package:dinovigilo/features/objectives/domain/entities/objective.dart';
 import 'package:dinovigilo/features/objectives/presentation/providers/objective_providers.dart';
 import 'package:dinovigilo/features/objectives/presentation/screens/objectives_screen.dart';
 import 'package:dinovigilo/features/sprint/domain/entities/sprint.dart';
 import 'package:dinovigilo/features/sprint/presentation/providers/sprint_providers.dart';
-import 'package:dinovigilo/features/sprint/presentation/widgets/day_selector.dart';
-import 'package:dinovigilo/features/sprint/presentation/widgets/objective_assignment.dart';
 import 'package:dinovigilo/shared/extensions/context_extensions.dart';
 import 'package:dinovigilo/shared/widgets/empty_state.dart';
 import 'package:dinovigilo/shared/widgets/error_display.dart';
@@ -22,30 +21,19 @@ class SprintConfigScreen extends ConsumerStatefulWidget {
 }
 
 class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
-  DateTime _startDate = DateTime.now();
-  int _durationDays = 14;
-  int? _expandedDay;
+  static const int _cycleLength = AppConstants.weekLengthDays;
+
+  int _selectedDay = DateTime.now().weekday - 1;
   bool _loaded = false;
   Sprint? _existingSprint;
 
   final Map<int, Set<String>> _dayObjectives = {};
 
-  @override
-  void initState() {
-    super.initState();
-    _startDate = DateTime(
-      _startDate.year,
-      _startDate.month,
-      _startDate.day,
-    );
-  }
-
   void _loadFromSprint(Sprint sprint) {
     _existingSprint = sprint;
-    _startDate = sprint.startDate;
-    _durationDays = sprint.durationDays;
     _dayObjectives.clear();
     for (final mapping in sprint.dayMappings) {
+      if (mapping.dayOfSprint >= _cycleLength) continue;
       _dayObjectives
           .putIfAbsent(mapping.dayOfSprint, () => {})
           .add(mapping.objectiveId);
@@ -86,14 +74,13 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
 
           return sprintAsync.when(
             data: (sprint) {
-              // Load existing sprint data once
               if (!_loaded && sprint != null) {
                 _loadFromSprint(sprint);
               } else if (!_loaded) {
                 _loaded = true;
               }
 
-              return _buildConfigForm(context, objectives, sprint);
+              return _buildConfigForm(context, objectives);
             },
             loading: () => const LoadingIndicator(),
             error: (error, _) => ErrorDisplay(
@@ -111,172 +98,41 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
     );
   }
 
-  Widget _buildConfigForm(
-    BuildContext context,
-    List<Objective> objectives,
-    Sprint? activeSprint,
-  ) {
-    final dateFormat = DateFormat.yMMMd();
+  Widget _buildConfigForm(BuildContext context, List<Objective> objectives) {
+    final localeName = Localizations.localeOf(context).toLanguageTag();
+    final todayWeekdayIndex = DateTime.now().weekday - 1;
+    final selectedSet = _dayObjectives[_selectedDay] ?? const <String>{};
 
     return Column(
       children: [
-        // Start date picker
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Card(
-            child: InkWell(
-              onTap: () => _pickStartDate(context),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      color: context.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.l10n.sprintStartDate,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: context.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          Text(
-                            dateFormat.format(_startDate),
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            context.l10n.sprintEndsOn(
-                              dateFormat.format(
-                                _startDate
-                                    .add(Duration(days: _durationDays)),
-                              ),
-                            ),
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: context.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.edit_calendar),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        // Week length selector
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: SegmentedButton<int>(
-            segments: const [
-              ButtonSegment(value: 7, label: Text('1 week')),
-              ButtonSegment(value: 14, label: Text('2 weeks')),
-              ButtonSegment(value: 21, label: Text('3 weeks')),
-              ButtonSegment(value: 28, label: Text('4 weeks')),
-            ],
-            selected: {_durationDays},
-            onSelectionChanged: (selected) {
-              final newDuration = selected.first;
-              setState(() {
-                _durationDays = newDuration;
-                // Remove objectives assigned to days beyond new length
-                _dayObjectives.removeWhere(
-                  (day, _) => day >= newDuration,
-                );
-                if (_expandedDay != null && _expandedDay! >= newDuration) {
-                  _expandedDay = null;
-                }
-              });
-            },
-          ),
-        ),
-
-        // Day list
+        _buildDayPicker(context, localeName, todayWeekdayIndex),
+        const Divider(height: 1),
+        _buildDayHeader(context, localeName, todayWeekdayIndex),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _durationDays,
-            itemBuilder: (context, dayIndex) {
-              final dayDate = _startDate.add(Duration(days: dayIndex));
-              final isExpanded = _expandedDay == dayIndex;
-              final selectedIds = _dayObjectives[dayIndex] ?? {};
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Column(
-                  children: [
-                    DaySelector(
-                      dayIndex: dayIndex,
-                      date: dayDate,
-                      objectiveCount: selectedIds.length,
-                      isExpanded: isExpanded,
-                      onTap: () {
-                        setState(() {
-                          _expandedDay = isExpanded ? null : dayIndex;
-                        });
-                      },
-                    ),
-                    if (isExpanded)
-                      ObjectiveAssignment(
-                        dayIndex: dayIndex,
-                        allObjectives: objectives,
-                        selectedObjectiveIds: selectedIds,
-                        onToggle: (objectiveId) {
-                          setState(() {
-                            final set = _dayObjectives.putIfAbsent(
-                              dayIndex,
-                              () => {},
-                            );
-                            if (set.contains(objectiveId)) {
-                              set.remove(objectiveId);
-                            } else {
-                              set.add(objectiveId);
-                            }
-                          });
-                        },
-                        onApplyToAll: () {
-                          setState(() {
-                            final currentSet =
-                                _dayObjectives[dayIndex] ?? {};
-                            for (var i = 0; i < _durationDays; i++) {
-                              _dayObjectives[i] = Set.from(currentSet);
-                            }
-                          });
-                        },
-                        onCopyFromPrevious: dayIndex > 0
-                            ? () {
-                                setState(() {
-                                  final previousSet =
-                                      _dayObjectives[dayIndex - 1] ?? {};
-                                  _dayObjectives[dayIndex] =
-                                      Set.from(previousSet);
-                                });
-                              }
-                            : null,
-                        onClear: () {
-                          setState(() {
-                            _dayObjectives[dayIndex]?.clear();
-                          });
-                        },
-                      ),
-                  ],
-                ),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            itemCount: objectives.length,
+            itemBuilder: (context, i) {
+              final obj = objectives[i];
+              final isSelected = selectedSet.contains(obj.id);
+              return CheckboxListTile(
+                value: isSelected,
+                onChanged: (_) => _toggleObjective(obj.id),
+                title: Text(obj.title),
+                subtitle: (obj.description != null &&
+                        obj.description!.isNotEmpty)
+                    ? Text(
+                        obj.description!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : null,
+                dense: true,
+                controlAffinity: ListTileControlAffinity.leading,
               );
             },
           ),
         ),
-
-        // Save button
         Padding(
           padding: const EdgeInsets.all(16),
           child: SizedBox(
@@ -291,25 +147,144 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
     );
   }
 
-  bool _hasAnyObjective() {
-    return _dayObjectives.values.any((set) => set.isNotEmpty);
+  Widget _buildDayPicker(
+    BuildContext context,
+    String localeName,
+    int todayIndex,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
+      child: Row(
+        children: List.generate(_cycleLength, (i) {
+          final hasObjectives = _dayObjectives[i]?.isNotEmpty ?? false;
+          return Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: _DayChip(
+                dayIndex: i,
+                localeName: localeName,
+                isSelected: _selectedDay == i,
+                isToday: todayIndex == i,
+                hasObjectives: hasObjectives,
+                onTap: () => setState(() => _selectedDay = i),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
   }
 
-  Future<void> _pickStartDate(BuildContext context) async {
-    final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
-    final firstDate =
-        _startDate.isBefore(sevenDaysAgo) ? _startDate : sevenDaysAgo;
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _startDate,
-      firstDate: firstDate,
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      helpText: context.l10n.selectStartDate,
+  Widget _buildDayHeader(
+    BuildContext context,
+    String localeName,
+    int todayIndex,
+  ) {
+    final refDate = DateTime(2024, 1, 1).add(Duration(days: _selectedDay));
+    final weekdayName = toBeginningOfSentenceCase(
+      DateFormat.EEEE(localeName).format(refDate),
     );
+    final isToday = _selectedDay == todayIndex;
 
-    if (picked != null) {
-      setState(() => _startDate = picked);
-    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                weekdayName,
+                style: context.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (isToday) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.colorScheme.primary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    context.l10n.today,
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: context.colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              ActionChip(
+                avatar: const Icon(Icons.select_all, size: 16),
+                label: Text(context.l10n.applyToAllDays),
+                onPressed: _applyToAll,
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.content_copy, size: 16),
+                label: Text(context.l10n.copyFromPreviousDay),
+                onPressed: _copyFromPrevious,
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.clear_all, size: 16),
+                label: Text(context.l10n.clearDay),
+                onPressed: _clearDay,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _toggleObjective(String objectiveId) {
+    setState(() {
+      final set = _dayObjectives.putIfAbsent(_selectedDay, () => {});
+      if (set.contains(objectiveId)) {
+        set.remove(objectiveId);
+      } else {
+        set.add(objectiveId);
+      }
+    });
+  }
+
+  void _applyToAll() {
+    setState(() {
+      final currentSet = _dayObjectives[_selectedDay] ?? {};
+      for (var i = 0; i < _cycleLength; i++) {
+        _dayObjectives[i] = Set.from(currentSet);
+      }
+    });
+  }
+
+  void _copyFromPrevious() {
+    setState(() {
+      final prevIndex =
+          (_selectedDay - 1 + _cycleLength) % _cycleLength;
+      final previousSet = _dayObjectives[prevIndex] ?? {};
+      _dayObjectives[_selectedDay] = Set.from(previousSet);
+    });
+  }
+
+  void _clearDay() {
+    setState(() {
+      _dayObjectives[_selectedDay]?.clear();
+    });
+  }
+
+  bool _hasAnyObjective() {
+    return _dayObjectives.values.any((set) => set.isNotEmpty);
   }
 
   Future<void> _save(BuildContext context) async {
@@ -323,10 +298,7 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
     if (_existingSprint != null) {
       final useCase = ref.read(updateSprintUseCaseProvider);
       final result = await useCase.execute(
-        sprint: _existingSprint!.copyWith(
-          startDate: _startDate,
-          durationDays: _durationDays,
-        ),
+        sprint: _existingSprint!,
         dayObjectiveIds: dayObjectiveIds,
       );
 
@@ -342,9 +314,7 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
     } else {
       final useCase = ref.read(createSprintUseCaseProvider);
       final result = await useCase.execute(
-        startDate: _startDate,
         dayObjectiveIds: dayObjectiveIds,
-        durationDays: _durationDays,
       );
 
       if (!mounted) return;
@@ -360,5 +330,84 @@ class _SprintConfigScreenState extends ConsumerState<SprintConfigScreen> {
             context.showSnackBar(error.message, isError: true),
       );
     }
+  }
+}
+
+class _DayChip extends StatelessWidget {
+  final int dayIndex;
+  final String localeName;
+  final bool isSelected;
+  final bool isToday;
+  final bool hasObjectives;
+  final VoidCallback onTap;
+
+  const _DayChip({
+    required this.dayIndex,
+    required this.localeName,
+    required this.isSelected,
+    required this.isToday,
+    required this.hasObjectives,
+    required this.onTap,
+  });
+
+  String _letter() {
+    final ref = DateTime(2024, 1, 1).add(Duration(days: dayIndex));
+    return DateFormat('EEEEE', localeName).format(ref).toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    final bg =
+        isSelected ? scheme.primary : scheme.surfaceContainerHighest;
+    final fg = isSelected ? scheme.onPrimary : scheme.onSurface;
+
+    return SizedBox(
+      height: 52,
+      child: Material(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isToday && !isSelected
+                    ? scheme.primary
+                    : Colors.transparent,
+                width: 1.5,
+              ),
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Text(
+                  _letter(),
+                  style: context.textTheme.titleMedium?.copyWith(
+                    color: fg,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (hasObjectives)
+                  Positioned(
+                    bottom: 6,
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected ? scheme.onPrimary : scheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

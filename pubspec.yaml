@@ -36,6 +36,10 @@ dependencies:
 
   # Settings Persistence
   shared_preferences: ^2.2.0
+  flutter_secure_storage: ^9.2.2
+
+  # Backend (PocketBase)
+  pocketbase: ^0.18.1
 
   # Utilities
   uuid: ^4.2.0

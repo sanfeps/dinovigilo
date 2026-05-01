@@ -22,10 +22,6 @@ class GetObjectivesForDayUseCase {
       return Result.failure(const NotFoundFailure('No active sprint'));
     }
 
-    if (!sprint.isDateInSprint(date)) {
-      return Result.success(const []);
-    }
-
     final dayOfSprint = sprint.getDayOfSprint(date);
     final objectiveIds = sprint.getObjectiveIdsForDay(dayOfSprint);
 

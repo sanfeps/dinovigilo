@@ -71,16 +71,7 @@
   "sprint": "Sprint",
   "sprints": "Sprints",
   "configureSprint": "Configure Sprint",
-  "sprintStartDate": "Sprint Start Date",
   "day": "Day",
-  "dayN": "Day {n}",
-  "@dayN": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "selectObjectivesForDay": "Select objectives for this day",
   "noActiveSprint": "No active sprint. Create one to schedule your objectives!",
   "createSprint": "Create Sprint",
@@ -90,17 +81,7 @@
   "applyToAllDays": "Apply to all days",
   "clearDay": "Clear day",
   "sprintActive": "Active Sprint",
-  "sprintDuration": "14 days",
-  "startDate": "Start Date",
   "noObjectivesAvailable": "No objectives available. Create objectives first!",
-  "sprintDaysRemaining": "{days, plural, =1{1 day remaining} other{{days} days remaining}}",
-  "@sprintDaysRemaining": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
   "objectivesAssigned": "{count, plural, =0{No objectives} =1{1 objective} other{{count} objectives}}",
   "@objectivesAssigned": {
     "placeholders": {
@@ -110,15 +91,6 @@
     }
   },
   "copyFromPreviousDay": "Copy from previous day",
-  "selectStartDate": "Select start date",
-  "sprintEndsOn": "Ends on {date}",
-  "@sprintEndsOn": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "noEggsYet": "No eggs yet. Keep your streak going!",
   "eggsIncubating": "{count, plural, =1{1 egg incubating} other{{count} eggs incubating}}",
   "@eggsIncubating": {
@@ -186,5 +158,68 @@
   "version": "Version",
   "streakBroken": "Streak Broken",
   "streakBrokenMessage": "Don't give up! Complete your recovery days to get back on track.",
-  "appearance": "Appearance"
+  "appearance": "Appearance",
+  "account": "Account",
+  "signIn": "Sign in",
+  "signUp": "Sign up",
+  "signOut": "Sign out",
+  "email": "Email",
+  "password": "Password",
+  "username": "Username",
+  "displayName": "Display name",
+  "alreadyHaveAccount": "Already have an account? Sign in",
+  "dontHaveAccount": "Don't have an account? Sign up",
+  "signedInAs": "Signed in as {name}",
+  "@signedInAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notSignedIn": "Not signed in",
+  "signInToConnect": "Sign in to connect with friends",
+  "emailRequired": "Email is required",
+  "passwordRequired": "Password is required",
+  "passwordTooShort": "Password must be at least 8 characters",
+  "usernameRequired": "Username is required",
+  "displayNameRequired": "Display name is required",
+  "invalidEmail": "Enter a valid email",
+  "welcomeBackUser": "Welcome back!",
+  "accountCreated": "Account created!",
+  "errorNetwork": "Network error. Check your connection.",
+  "errorInvalidCredentials": "Invalid email or password.",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "friends": "Friends",
+  "yourInviteCode": "Your invite code",
+  "inviteCodeHint": "Share this code with friends so they can add you.",
+  "copyCode": "Copy code",
+  "codeCopied": "Code copied to clipboard",
+  "addByCode": "Add a friend",
+  "add": "Add",
+  "inviteCodePlaceholder": "ABC123",
+  "pendingInvitations": "Pending invitations",
+  "sentInvitations": "Sent invitations",
+  "friendsList": "Friends",
+  "noFriendsYet": "No friends yet. Share your code to get started!",
+  "friendRequestSent": "Friend request sent",
+  "friendshipAccepted": "Friend added!",
+  "friendRemoved": "Friend removed",
+  "errorInvalidInviteCode": "Invalid invite code. Use 6 letters or numbers.",
+  "errorCodeNotFound": "No user found with that code.",
+  "errorCannotAddSelf": "You can't add yourself.",
+  "errorAlreadyFriends": "You're already connected with this user.",
+  "accept": "Accept",
+  "reject": "Reject",
+  "remove": "Remove",
+  "removeFriend": "Remove friend",
+  "removeFriendConfirmation": "Remove {name} from your friends?",
+  "@removeFriendConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingForResponse": "Waiting for response"
 }

@@ -40,6 +40,14 @@
             gh
             curl
             unzip
+            # Linux desktop build deps
+            pkg-config
+            gtk3
+            glib
+            ninja
+            clang
+            xz
+            libsecret
           ];
 
           # Libraries needed by the Android emulator's Qt frontend
