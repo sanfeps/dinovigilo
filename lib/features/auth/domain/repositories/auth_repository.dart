@@ -27,4 +27,8 @@ abstract class AuthRepository {
   /// Hits the backend to refresh the cached user record (e.g., after a
   /// profile change). Returns null if no session is active.
   Future<Result<AuthSession?>> refresh();
+
+  /// Updates the current user's avatar emoji on the backend and returns the
+  /// refreshed session.
+  Future<Result<AuthSession>> updateAvatar(String emoji);
 }

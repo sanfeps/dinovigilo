@@ -91,6 +91,8 @@
   "signIn": "Iniciar sesión",
   "signUp": "Crear cuenta",
   "signOut": "Cerrar sesión",
+  "chooseAvatar": "Elige tu avatar",
+  "avatarUpdated": "Avatar actualizado",
   "email": "Correo",
   "password": "Contraseña",
   "username": "Usuario",

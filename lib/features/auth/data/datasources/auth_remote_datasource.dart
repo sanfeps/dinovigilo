@@ -72,6 +72,20 @@ class AuthRemoteDatasource {
     return _sessionFromAuth(result);
   }
 
+  /// Updates the current user's `avatarEmoji` field. Triggers an authRefresh
+  /// after so the cached session record reflects the new value.
+  Future<AuthSession> updateAvatar(String emoji) async {
+    final model = _pb.authStore.model;
+    if (model is! RecordModel) {
+      throw StateError('No active session');
+    }
+    await _pb.collection('users').update(model.id, body: {
+      'avatarEmoji': emoji,
+    });
+    final refreshed = await _pb.collection('users').authRefresh();
+    return _sessionFromAuth(refreshed);
+  }
+
   AuthSession? _readSession() {
     if (!_pb.authStore.isValid) return null;
     final model = _pb.authStore.model;

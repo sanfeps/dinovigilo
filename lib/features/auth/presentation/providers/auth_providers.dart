@@ -11,6 +11,7 @@ import 'package:dinovigilo/features/auth/domain/repositories/auth_repository.dar
 import 'package:dinovigilo/features/auth/domain/usecases/sign_in.dart';
 import 'package:dinovigilo/features/auth/domain/usecases/sign_out.dart';
 import 'package:dinovigilo/features/auth/domain/usecases/sign_up.dart';
+import 'package:dinovigilo/features/auth/domain/usecases/update_avatar.dart';
 
 part 'auth_providers.g.dart';
 
@@ -62,4 +63,12 @@ Future<SignUpUseCase> signUpUseCase(SignUpUseCaseRef ref) async {
 Future<SignOutUseCase> signOutUseCase(SignOutUseCaseRef ref) async {
   final repo = await ref.watch(authRepositoryProvider.future);
   return SignOutUseCase(repo);
+}
+
+@riverpod
+Future<UpdateAvatarUseCase> updateAvatarUseCase(
+  UpdateAvatarUseCaseRef ref,
+) async {
+  final repo = await ref.watch(authRepositoryProvider.future);
+  return UpdateAvatarUseCase(repo);
 }

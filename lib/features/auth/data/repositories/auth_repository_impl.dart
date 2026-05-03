@@ -95,6 +95,20 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<Result<AuthSession>> updateAvatar(String emoji) async {
+    try {
+      final session = await _remote.updateAvatar(emoji);
+      _analytics.logEvent('auth_update_avatar', {'userId': session.user.id});
+      return Result.success(session);
+    } on ClientException catch (e) {
+      return Result.failure(_mapClientException(e));
+    } catch (e) {
+      _analytics.logError(e, StackTrace.current);
+      return Result.failure(UnknownFailure(e.toString()));
+    }
+  }
+
   Failure _mapClientException(ClientException e) {
     final code = e.statusCode;
     final raw = e.response['message'] ?? e.toString();

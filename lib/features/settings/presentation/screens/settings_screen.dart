@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dinovigilo/features/auth/domain/entities/auth_session.dart';
 import 'package:dinovigilo/features/auth/presentation/providers/auth_providers.dart';
 import 'package:dinovigilo/features/auth/presentation/screens/auth_screen.dart';
+import 'package:dinovigilo/features/auth/presentation/widgets/avatar_picker_sheet.dart';
 import 'package:dinovigilo/features/debug/debug_screen.dart';
 import 'package:dinovigilo/features/friends/presentation/screens/friends_screen.dart';
 import 'package:dinovigilo/features/settings/presentation/providers/settings_providers.dart';
@@ -350,24 +351,44 @@ class _SignedOutTile extends StatelessWidget {
   }
 }
 
-class _SignedInTile extends StatelessWidget {
+class _SignedInTile extends ConsumerWidget {
   const _SignedInTile({required this.session, required this.onSignOut});
 
   final AuthSession session;
   final VoidCallback onSignOut;
 
+  Future<void> _changeAvatar(BuildContext context, WidgetRef ref) async {
+    final current = session.user.avatarEmoji.isEmpty
+        ? '🦖'
+        : session.user.avatarEmoji;
+    final picked = await showAvatarPickerSheet(context, current: current);
+    if (picked == null || picked == current) return;
+    if (!context.mounted) return;
+
+    final useCase = await ref.read(updateAvatarUseCaseProvider.future);
+    final result = await useCase.execute(picked);
+    if (!context.mounted) return;
+    result.when(
+      success: (_) => context.showSnackBar(context.l10n.avatarUpdated),
+      failure: (failure) =>
+          context.showSnackBar(failure.message, isError: true),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final emoji = session.user.avatarEmoji.isEmpty
+        ? '🦖'
+        : session.user.avatarEmoji;
     return Column(
       children: [
         ListTile(
-          leading: CircleAvatar(
-            backgroundColor: AppColors.surfaceVariant,
-            child: Text(
-              session.user.avatarEmoji.isEmpty
-                  ? '🦖'
-                  : session.user.avatarEmoji,
-              style: const TextStyle(fontSize: 20),
+          leading: InkWell(
+            onTap: () => _changeAvatar(context, ref),
+            customBorder: const CircleBorder(),
+            child: CircleAvatar(
+              backgroundColor: AppColors.surfaceVariant,
+              child: Text(emoji, style: const TextStyle(fontSize: 20)),
             ),
           ),
           title: Text(session.user.displayName.isEmpty

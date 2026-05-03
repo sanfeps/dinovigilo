@@ -163,6 +163,8 @@
   "signIn": "Sign in",
   "signUp": "Sign up",
   "signOut": "Sign out",
+  "chooseAvatar": "Choose your avatar",
+  "avatarUpdated": "Avatar updated",
   "email": "Email",
   "password": "Password",
   "username": "Username",
