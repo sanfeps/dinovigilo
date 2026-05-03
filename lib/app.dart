@@ -7,8 +7,7 @@ import 'package:dinovigilo/features/challenges/presentation/screens/challenges_s
 import 'package:dinovigilo/features/dinosaurs/domain/entities/dinosaur.dart';
 import 'package:dinovigilo/features/dinosaurs/presentation/providers/egg_providers.dart';
 import 'package:dinovigilo/features/settings/presentation/providers/settings_providers.dart';
-import 'package:dinovigilo/features/dinosaurs/presentation/screens/collection_screen.dart';
-import 'package:dinovigilo/features/dinosaurs/presentation/screens/incubator_screen.dart';
+import 'package:dinovigilo/features/dinosaurs/presentation/screens/dinosaurs_screen.dart';
 import 'package:dinovigilo/features/dinosaurs/presentation/widgets/hatching_dialog.dart';
 import 'package:dinovigilo/features/history/presentation/screens/history_screen.dart';
 import 'package:dinovigilo/features/sprint/presentation/screens/sprint_config_screen.dart';
@@ -50,11 +49,15 @@ class _HomeScreenState extends ConsumerState<_HomeScreen> {
   late final List<Widget> _screens = [
     const HistoryScreen(),
     const SprintConfigScreen(),
-    TodayScreen(onNavigateToIncubator: () => _navigateToTab(3)),
-    const IncubatorScreen(),
-    const CollectionScreen(),
+    TodayScreen(onNavigateToIncubator: _openEggsTab),
+    const DinosaursScreen(),
     const ChallengesScreen(),
   ];
+
+  void _openEggsTab() {
+    ref.read(dinosaursSubTabProvider.notifier).state = 0;
+    _navigateToTab(3);
+  }
 
   @override
   void initState() {
@@ -118,12 +121,7 @@ class _HomeScreenState extends ConsumerState<_HomeScreen> {
           NavigationDestination(
             icon: const Icon(Icons.egg_outlined),
             selectedIcon: const Icon(Icons.egg),
-            label: context.l10n.incubator,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.catching_pokemon_outlined),
-            selectedIcon: const Icon(Icons.catching_pokemon),
-            label: context.l10n.collection,
+            label: context.l10n.dinosaurs,
           ),
           NavigationDestination(
             icon: const Icon(Icons.shield_outlined),

@@ -23,76 +23,71 @@ class CollectionScreen extends ConsumerWidget {
     final dinosAsync = ref.watch(dinosaursStreamProvider);
     final totalSpecies = DinosaurSpeciesData.allSpecies.length;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.collection),
-      ),
-      body: dinosAsync.when(
-        data: (dinosaurs) {
-          if (dinosaurs.isEmpty) {
-            return EmptyState(
-              message: context.l10n.noCollectionYet,
-              icon: Icons.catching_pokemon,
-            );
-          }
-
-          final uniqueSpeciesCount =
-              dinosaurs.map((d) => d.speciesId).toSet().length;
-
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  context.l10n.speciesDiscovered(
-                    uniqueSpeciesCount,
-                    totalSpecies,
-                  ),
-                  style: context.textTheme.titleSmall?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 0.85,
-                  ),
-                  itemCount: dinosaurs.length,
-                  itemBuilder: (context, index) {
-                    final dino = dinosaurs[index];
-                    final DinosaurSpecies? species = _speciesMap[dino.speciesId];
-                    return DinosaurCollectionTile(
-                      dinosaur: dino,
-                      species: species,
-                    )
-                        .animate()
-                        .fadeIn(
-                          delay: (index * 50).ms,
-                          duration: 400.ms,
-                        )
-                        .scale(
-                          begin: const Offset(0.8, 0.8),
-                          end: const Offset(1, 1),
-                          delay: (index * 50).ms,
-                          duration: 400.ms,
-                          curve: Curves.easeOut,
-                        );
-                  },
-                ),
-              ),
-            ],
+    return dinosAsync.when(
+      data: (dinosaurs) {
+        if (dinosaurs.isEmpty) {
+          return EmptyState(
+            message: context.l10n.noCollectionYet,
+            icon: Icons.catching_pokemon,
           );
-        },
-        loading: () => const LoadingIndicator(),
-        error: (error, _) => ErrorDisplay(
-          message: error.toString(),
-          onRetry: () => ref.invalidate(dinosaursStreamProvider),
-        ),
+        }
+
+        final uniqueSpeciesCount =
+            dinosaurs.map((d) => d.speciesId).toSet().length;
+
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                context.l10n.speciesDiscovered(
+                  uniqueSpeciesCount,
+                  totalSpecies,
+                ),
+                style: context.textTheme.titleSmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 0.85,
+                ),
+                itemCount: dinosaurs.length,
+                itemBuilder: (context, index) {
+                  final dino = dinosaurs[index];
+                  final DinosaurSpecies? species = _speciesMap[dino.speciesId];
+                  return DinosaurCollectionTile(
+                    dinosaur: dino,
+                    species: species,
+                  )
+                      .animate()
+                      .fadeIn(
+                        delay: (index * 50).ms,
+                        duration: 400.ms,
+                      )
+                      .scale(
+                        begin: const Offset(0.8, 0.8),
+                        end: const Offset(1, 1),
+                        delay: (index * 50).ms,
+                        duration: 400.ms,
+                        curve: Curves.easeOut,
+                      );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const LoadingIndicator(),
+      error: (error, _) => ErrorDisplay(
+        message: error.toString(),
+        onRetry: () => ref.invalidate(dinosaursStreamProvider),
       ),
     );
   }

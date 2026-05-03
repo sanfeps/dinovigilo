@@ -167,11 +167,10 @@ Defined in `lib/app.dart` — `_HomeScreen` with `IndexedStack`.
 | 0 | History | |
 | 1 | Sprint | |
 | **2** | **Today** | **yes** |
-| 3 | Incubator | |
-| 4 | Collection | |
-| 5 | Challenges | |
+| 3 | Dinosaurs (Eggs / Collection sub-tabs) | |
+| 4 | Challenges | |
 
-Cross-tab navigation: `TodayScreen` receives `onNavigateToIncubator` callback.
+Cross-tab navigation: `TodayScreen` receives `onNavigateToIncubator` callback. The Dinosaurs tab uses an internal `TabController` mirrored to `dinosaursSubTabProvider` (StateProvider<int>) so callers can deep-link to a sub-tab.
 
 The Debug screen is hidden behind a developer-mode toggle in Settings → tap the version line 7 times to unlock; it then appears under a new "Developer" section.
 

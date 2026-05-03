@@ -18,11 +18,7 @@ class IncubatorScreen extends ConsumerWidget {
     final eggsAsync = ref.watch(pendingEggsStreamProvider);
     final streakAsync = ref.watch(streakStatusStreamProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.incubator),
-      ),
-      body: eggsAsync.when(
+    return eggsAsync.when(
         data: (eggs) {
           if (eggs.isEmpty) {
             return EmptyState(
@@ -94,11 +90,10 @@ class IncubatorScreen extends ConsumerWidget {
             ],
           );
         },
-        loading: () => const LoadingIndicator(),
-        error: (error, _) => ErrorDisplay(
-          message: error.toString(),
-          onRetry: () => ref.invalidate(pendingEggsStreamProvider),
-        ),
+      loading: () => const LoadingIndicator(),
+      error: (error, _) => ErrorDisplay(
+        message: error.toString(),
+        onRetry: () => ref.invalidate(pendingEggsStreamProvider),
       ),
     );
   }

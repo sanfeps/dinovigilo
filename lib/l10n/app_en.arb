@@ -9,6 +9,7 @@
   "history": "History",
   "collection": "Collection",
   "incubator": "Incubator",
+  "dinosaurs": "Dinosaurs",
   "streak": "Streak",
   "objectivesCompleted": "{count, plural, =0{No objectives completed} =1{1 objective completed} other{{count} objectives completed}}",
   "@objectivesCompleted": {
