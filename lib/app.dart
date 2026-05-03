@@ -3,7 +3,7 @@ import 'package:dinovigilo/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:dinovigilo/features/auth/presentation/providers/auth_providers.dart';
-import 'package:dinovigilo/features/debug/debug_screen.dart';
+import 'package:dinovigilo/features/challenges/presentation/screens/challenges_screen.dart';
 import 'package:dinovigilo/features/dinosaurs/domain/entities/dinosaur.dart';
 import 'package:dinovigilo/features/dinosaurs/presentation/providers/egg_providers.dart';
 import 'package:dinovigilo/features/settings/presentation/providers/settings_providers.dart';
@@ -53,7 +53,7 @@ class _HomeScreenState extends ConsumerState<_HomeScreen> {
     TodayScreen(onNavigateToIncubator: () => _navigateToTab(3)),
     const IncubatorScreen(),
     const CollectionScreen(),
-    const DebugScreen(),
+    const ChallengesScreen(),
   ];
 
   @override
@@ -125,10 +125,10 @@ class _HomeScreenState extends ConsumerState<_HomeScreen> {
             selectedIcon: const Icon(Icons.catching_pokemon),
             label: context.l10n.collection,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.bug_report_outlined),
-            selectedIcon: Icon(Icons.bug_report),
-            label: 'Debug',
+          NavigationDestination(
+            icon: const Icon(Icons.shield_outlined),
+            selectedIcon: const Icon(Icons.shield),
+            label: context.l10n.challenges,
           ),
         ],
       ),

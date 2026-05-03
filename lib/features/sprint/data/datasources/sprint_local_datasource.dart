@@ -68,13 +68,26 @@ class SprintLocalDatasource {
         ),
       );
 
-      // Delete old mappings
+      // System-managed penalty objectives are invisible to the user but
+      // should survive an edit of the sprint (their mappings would otherwise
+      // be wiped here and the penalty would silently disappear before the
+      // 7-day window ends).
+      final penaltyIds = (await (_db.select(_db.objectives)
+                ..where((t) => t.isPenalty.equals(true)))
+              .get())
+          .map((o) => o.id)
+          .toSet();
+
       await (_db.delete(_db.dayObjectiveMappings)
-            ..where((t) => t.sprintId.equals(sprint.id)))
+            ..where((t) =>
+                t.sprintId.equals(sprint.id) &
+                t.objectiveId.isNotIn(penaltyIds)))
           .go();
 
-      // Insert new mappings
+      // Insert new mappings, but skip any that would conflict with surviving
+      // penalty mappings (defensive — the UI never lets the user pick them).
       for (final mapping in sprint.dayMappings) {
+        if (penaltyIds.contains(mapping.objectiveId)) continue;
         await _db.into(_db.dayObjectiveMappings).insert(
               DayObjectiveMappingsCompanion.insert(
                 id: mapping.id,
@@ -91,6 +104,27 @@ class SprintLocalDatasource {
     await (_db.update(_db.sprints)).write(
       const SprintsCompanion(isActive: Value(false)),
     );
+  }
+
+  /// Inserts the supplied mappings into [sprintId] without touching existing
+  /// rows. Used by penalty injection so we don't wipe the user's normal
+  /// objective layout.
+  Future<void> addMappings(
+    String sprintId,
+    List<DayObjectiveMapping> mappings,
+  ) async {
+    await _db.transaction(() async {
+      for (final mapping in mappings) {
+        await _db.into(_db.dayObjectiveMappings).insert(
+              DayObjectiveMappingsCompanion.insert(
+                id: mapping.id,
+                sprintId: sprintId,
+                dayOfSprint: mapping.dayOfSprint,
+                objectiveId: mapping.objectiveId,
+              ),
+            );
+      }
+    });
   }
 
   Stream<Sprint?> watchActiveSprint() {

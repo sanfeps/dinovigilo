@@ -169,9 +169,11 @@ Defined in `lib/app.dart` — `_HomeScreen` with `IndexedStack`.
 | **2** | **Today** | **yes** |
 | 3 | Incubator | |
 | 4 | Collection | |
-| 5 | Debug (temp) | |
+| 5 | Challenges | |
 
 Cross-tab navigation: `TodayScreen` receives `onNavigateToIncubator` callback.
+
+The Debug screen is hidden behind a developer-mode toggle in Settings → tap the version line 7 times to unlock; it then appears under a new "Developer" section.
 
 ---
 
@@ -293,6 +295,5 @@ nix develop --command flutter pub run build_runner build --delete-conflicting-ou
 
 ## Pending / Known Issues
 
-- Debug tab (index 5) should be removed before release
 - Dinosaur image assets are emoji placeholders — real art not yet added
 - Linux notifications: daily reminder scheduling unsupported (silenced via try-catch)

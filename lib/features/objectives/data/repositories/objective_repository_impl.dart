@@ -95,4 +95,9 @@ class ObjectiveRepositoryImpl implements ObjectiveRepository {
   Stream<List<Objective>> watchAll() {
     return _datasource.watchAll();
   }
+
+  @override
+  Stream<List<Objective>> watchActive() {
+    return _datasource.watchActive();
+  }
 }

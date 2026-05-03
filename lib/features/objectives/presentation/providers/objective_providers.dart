@@ -47,8 +47,19 @@ DeleteObjectiveUseCase deleteObjectiveUseCase(
   return DeleteObjectiveUseCase(ref.watch(objectiveRepositoryProvider));
 }
 
+/// User-managed objectives only — excludes system-applied challenge penalty
+/// objectives so they don't pollute the objectives CRUD screen or the sprint
+/// config picker.
 @riverpod
 Stream<List<Objective>> objectivesStream(ObjectivesStreamRef ref) {
+  final repository = ref.watch(objectiveRepositoryProvider);
+  return repository.watchActive();
+}
+
+/// All objectives including system-managed penalties. Used by the today flow
+/// so that active penalties still appear on the user's checklist.
+@riverpod
+Stream<List<Objective>> allObjectivesStream(AllObjectivesStreamRef ref) {
   final repository = ref.watch(objectiveRepositoryProvider);
   return repository.watchAll();
 }

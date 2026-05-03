@@ -112,18 +112,29 @@ class _DailyChecklistState extends State<DailyChecklist>
                   onChanged: (value) {
                     _handleToggle(completion.id, value ?? false);
                   },
-                  title: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: (context.textTheme.bodyLarge ?? const TextStyle())
-                        .copyWith(
-                      decoration: completion.completed
-                          ? TextDecoration.lineThrough
-                          : null,
-                      color: completion.completed
-                          ? context.colorScheme.onSurfaceVariant
-                          : context.textTheme.bodyLarge?.color,
-                    ),
-                    child: Text(objective.title),
+                  title: Row(
+                    children: [
+                      if (objective.isPenalty) ...[
+                        _PenaltyBadge(label: context.l10n.penaltyLabel),
+                        const SizedBox(width: 8),
+                      ],
+                      Expanded(
+                        child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: (context.textTheme.bodyLarge ??
+                                  const TextStyle())
+                              .copyWith(
+                            decoration: completion.completed
+                                ? TextDecoration.lineThrough
+                                : null,
+                            color: completion.completed
+                                ? context.colorScheme.onSurfaceVariant
+                                : context.textTheme.bodyLarge?.color,
+                          ),
+                          child: Text(objective.title),
+                        ),
+                      ),
+                    ],
                   ),
                   subtitle: objective.description != null &&
                           objective.description!.isNotEmpty
@@ -154,6 +165,43 @@ class _DailyChecklistState extends State<DailyChecklist>
           );
         }),
       ],
+    );
+  }
+}
+
+class _PenaltyBadge extends StatelessWidget {
+  const _PenaltyBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppColors.warning.withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.gavel, size: 12, color: AppColors.warning),
+          const SizedBox(width: 4),
+          Text(
+            label.toUpperCase(),
+            style: context.textTheme.labelSmall?.copyWith(
+              color: AppColors.warning,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+              height: 1,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

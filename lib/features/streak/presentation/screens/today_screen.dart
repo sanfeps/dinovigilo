@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:dinovigilo/features/challenges/presentation/providers/challenges_providers.dart';
+import 'package:dinovigilo/features/challenges/presentation/widgets/outcome_dialog.dart';
+import 'package:dinovigilo/features/challenges/presentation/widgets/today_challenges_section.dart';
 import 'package:dinovigilo/features/dinosaurs/presentation/providers/egg_providers.dart';
 import 'package:dinovigilo/features/dinosaurs/presentation/widgets/egg_progress_summary.dart';
 import 'package:dinovigilo/features/objectives/domain/entities/objective.dart';
@@ -28,6 +31,14 @@ class TodayScreen extends ConsumerWidget {
 
     // Trigger day-end processing on startup
     ref.watch(processDayEndOnStartupProvider);
+
+    // Trigger weekly close + penalty pipeline on startup, surface outcomes
+    // via snackbars when they arrive.
+    ref.watch(processChallengesLifecycleProvider);
+    ref.listen<AsyncValue<ChallengeLifecycleReport>>(
+      processChallengesLifecycleProvider,
+      (previous, next) => _handleChallengeLifecycle(context, next),
+    );
 
     // Watch initialization so it stays alive and completes
     final initAsync = ref.watch(initializeTodayCompletionsProvider);
@@ -145,9 +156,63 @@ class TodayScreen extends ConsumerWidget {
                   ref.invalidate(todayCompletionsStreamProvider),
             ),
           ),
+          const TodayChallengesSection(),
         ],
       ),
     );
+  }
+
+  void _handleChallengeLifecycle(
+    BuildContext context,
+    AsyncValue<ChallengeLifecycleReport> async,
+  ) {
+    // Skip refreshes that are still loading — `valueOrNull` would otherwise
+    // return the previous report (via copyWithPrevious) and replay the
+    // animation when the user logs out / refetches.
+    if (async.isLoading) return;
+    final report = async.valueOrNull;
+    if (report == null || report.isEmpty) return;
+    if (!context.mounted) return;
+
+    // `unseenOutcomes` is the source of truth: every completed challenge the
+    // current user hasn't seen yet. Outcome is derived from the entity's
+    // winnerId/loserId/isTie relative to `opponent` (which is always the
+    // other user from the current user's perspective).
+    final events = <OutcomeEvent>[];
+    for (final challenge in report.unseenOutcomes) {
+      final name = challenge.opponent.displayName.isEmpty
+          ? challenge.opponent.username
+          : challenge.opponent.displayName;
+
+      final OutcomeKind kind;
+      if (challenge.isTie) {
+        kind = OutcomeKind.tie;
+      } else if (challenge.winnerId != null &&
+          challenge.winnerId == challenge.opponent.id) {
+        kind = OutcomeKind.lost;
+      } else if (challenge.winnerId != null) {
+        kind = OutcomeKind.won;
+      } else {
+        // No winner recorded and not a tie — skip rather than show garbage.
+        continue;
+      }
+
+      String? penalty;
+      if (kind == OutcomeKind.lost) {
+        final applied = report.appliedPenalties
+            .where((p) => p.challenge.id == challenge.id)
+            .firstOrNull;
+        penalty = applied?.penaltyTitle ?? challenge.penaltyObjective;
+      }
+
+      events.add(OutcomeEvent(
+        kind: kind,
+        opponentName: name,
+        penalty: penalty,
+      ));
+    }
+    if (events.isEmpty) return;
+    showOutcomeDialogs(context, events);
   }
 
   Future<void> _handleToggle(

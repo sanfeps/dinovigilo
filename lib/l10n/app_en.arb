@@ -221,5 +221,170 @@
       }
     }
   },
-  "waitingForResponse": "Waiting for response"
+  "waitingForResponse": "Waiting for response",
+  "challenges": "Challenges",
+  "newChallenge": "New challenge",
+  "noChallengesYet": "No challenges yet. Send one to get started!",
+  "incomingChallenges": "Incoming",
+  "activeChallenges": "Active",
+  "sentChallenges": "Sent",
+  "challengeHistory": "History",
+  "outcomeWonTitle": "You won!",
+  "outcomeWonSubtitle": "Great work — {name} owes you the penalty.",
+  "@outcomeWonSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "outcomeLostTitle": "You lost",
+  "outcomeLostSubtitle": "{name} won this round. Penalty added to your sprint.",
+  "@outcomeLostSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "outcomeTieTitle": "It's a tie",
+  "outcomeTieSubtitle": "Both of you finished even — no penalty this week.",
+  "outcomeContinue": "Continue",
+  "trophyRoomTitle": "Trophy room",
+  "trophyRoomEmpty": "No finished challenges yet. Win one to fill this room!",
+  "trophyStatsWins": "Wins",
+  "trophyStatsLosses": "Losses",
+  "trophyStatsTies": "Ties",
+  "trophyStatsWinRate": "Win rate",
+  "trophyStatsCurrentStreak": "Current streak",
+  "trophyStreakSuffix": "{count, plural, =1{1 win} other{{count} wins}}",
+  "@trophyStreakSuffix": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "trophyWeekRange": "{start} – {end}",
+  "@trophyWeekRange": {
+    "placeholders": {
+      "start": { "type": "String" },
+      "end": { "type": "String" }
+    }
+  },
+  "challengeDetailTitle": "Challenge",
+  "challengeSent": "Challenge sent",
+  "challengeAccepted": "Challenge accepted!",
+  "challengeRejected": "Challenge rejected",
+  "challengeCancelled": "Challenge cancelled",
+  "acceptChallenge": "Accept challenge",
+  "rejectChallenge": "Reject challenge",
+  "rejectChallengeConfirm": "Reject this challenge? The proposer will be notified.",
+  "cancelChallenge": "Cancel challenge",
+  "cancelChallengeConfirm": "Cancel this challenge? You can send a new one anytime.",
+  "sendChallenge": "Send challenge",
+  "confirm": "Confirm",
+  "opponentLabel": "Opponent",
+  "pickOpponent": "Pick a friend",
+  "objectivesLabel": "Objectives",
+  "objectiveHint": "Objective {index}",
+  "@objectiveHint": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
+  "addObjective": "Add objective",
+  "removeObjective": "Remove",
+  "penaltyLabel": "Penalty",
+  "penaltyHelper": "What the loser has to do next week.",
+  "penaltyHint": "e.g. Make pancakes for the winner",
+  "objectiveCountSingular": "1 objective",
+  "objectiveCountPlural": "{count} objectives",
+  "@objectiveCountPlural": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "endsOn": "ends {date}",
+  "@endsOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "weekRange": "{start} – {end}",
+  "@weekRange": {
+    "placeholders": {
+      "start": { "type": "String" },
+      "end": { "type": "String" }
+    }
+  },
+  "youChallenged": "You challenged {name}",
+  "@youChallenged": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "opponentChallengedYou": "{name} challenged you",
+  "@opponentChallengedYou": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "statusWaiting": "Waiting",
+  "statusInvited": "Invited",
+  "statusActive": "Active",
+  "statusCompleted": "Done",
+  "statusRejected": "Rejected",
+  "statusCancelled": "Cancelled",
+  "statusTie": "Tie",
+  "statusWon": "Won",
+  "statusLost": "Lost",
+  "errorPickOpponent": "Pick an opponent first.",
+  "errorAtLeastOneObjective": "Add at least one objective.",
+  "errorPenaltyRequired": "Define a penalty for the loser.",
+  "errorNeedFriendsFirst": "Add a friend before sending a challenge.",
+  "progressGridComingSoon": "Progress grid coming in the next phase.",
+  "markToday": "Mark today",
+  "markTodayHint": "Tick the objectives you've completed today.",
+  "done": "Done",
+  "savingChanges": "Saving…",
+  "errorSavingMark": "Couldn't save. Try again.",
+  "youLabel": "You",
+  "failedDayCount": "{count, plural, =1{1 fail} other{{count} fails}}",
+  "@failedDayCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "activeChallengeWith": "Active challenge vs {name}",
+  "@activeChallengeWith": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "activeChallengesCount": "{count, plural, =1{1 active challenge} other{{count} active challenges}}",
+  "@activeChallengesCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "developerSection": "Developer",
+  "developerModeEnabled": "Developer mode enabled",
+  "disableDeveloperMode": "Disable developer mode",
+  "debugScreen": "Debug screen",
+  "tapsToEnableDev": "{count, plural, =1{1 tap to enable developer mode} other{{count} taps to enable developer mode}}",
+  "@tapsToEnableDev": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "challengeWonSnackbar": "Challenge won vs {name}!",
+  "@challengeWonSnackbar": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "challengeLostSnackbar": "Challenge lost vs {name}. Penalty applied: {penalty}",
+  "@challengeLostSnackbar": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "penalty": { "type": "String" }
+    }
+  },
+  "challengeTieSnackbar": "Tied challenge vs {name}.",
+  "@challengeTieSnackbar": {
+    "placeholders": { "name": { "type": "String" } }
+  }
 }

@@ -32,6 +32,8 @@ class ObjectiveLocalDatasource {
             title: objective.title,
             description: Value(objective.description),
             createdAt: objective.createdAt,
+            isPenalty: Value(objective.isPenalty),
+            expiresAt: Value(objective.expiresAt),
           ),
         );
     return objective;
@@ -68,12 +70,23 @@ class ObjectiveLocalDatasource {
         );
   }
 
+  /// Like [watchAll] but excludes system-managed penalty objectives so the
+  /// objectives screen and sprint config picker only show user-created entries.
+  Stream<List<Objective>> watchActive() {
+    return (_db.select(_db.objectives)
+          ..where((t) => t.isPenalty.equals(false)))
+        .watch()
+        .map((rows) => rows.map(_rowToEntity).toList());
+  }
+
   Objective _rowToEntity(dynamic row) {
     return Objective(
       id: row.id as String,
       title: row.title as String,
       description: row.description as String?,
       createdAt: row.createdAt as DateTime,
+      isPenalty: row.isPenalty as bool,
+      expiresAt: row.expiresAt as DateTime?,
     );
   }
 }

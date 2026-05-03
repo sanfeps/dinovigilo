@@ -10,6 +10,7 @@ class AppSettings with _$AppSettings {
     @Default(9) int reminderHour,
     @Default(0) int reminderMinute,
     String? localeOverride,
+    @Default(false) bool developerModeEnabled,
   }) = _AppSettings;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) =>

@@ -68,4 +68,15 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       ),
     );
   }
+
+  Future<void> setDeveloperMode(bool enabled) async {
+    final service = ref.read(settingsServiceProvider);
+    await service.saveDeveloperMode(enabled);
+
+    state = AsyncData(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        developerModeEnabled: enabled,
+      ),
+    );
+  }
 }

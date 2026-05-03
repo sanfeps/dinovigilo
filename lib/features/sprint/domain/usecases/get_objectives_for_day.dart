@@ -35,7 +35,7 @@ class GetObjectivesForDayUseCase {
     }
 
     final objectives = allObjectivesResult.data
-        .where((obj) => objectiveIds.contains(obj.id))
+        .where((obj) => objectiveIds.contains(obj.id) && obj.isLiveOn(date))
         .toList();
 
     return Result.success(objectives);

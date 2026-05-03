@@ -28,7 +28,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -74,6 +74,10 @@ class AppDatabase extends _$AppDatabase {
             )) % 7
           ''');
           await customStatement('ALTER TABLE sprints DROP COLUMN start_date');
+        }
+        if (from < 7) {
+          await m.addColumn(objectives, objectives.isPenalty);
+          await m.addColumn(objectives, objectives.expiresAt);
         }
       },
     );

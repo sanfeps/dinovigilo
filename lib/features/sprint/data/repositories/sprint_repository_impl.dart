@@ -3,6 +3,7 @@ import 'package:dinovigilo/core/error/failures.dart';
 import 'package:dinovigilo/core/services/analytics_service.dart';
 import 'package:dinovigilo/core/utils/result.dart';
 import 'package:dinovigilo/features/sprint/data/datasources/sprint_local_datasource.dart';
+import 'package:dinovigilo/features/sprint/domain/entities/day_objective_mapping.dart';
 import 'package:dinovigilo/features/sprint/domain/entities/sprint.dart';
 import 'package:dinovigilo/features/sprint/domain/repositories/sprint_repository.dart';
 
@@ -79,5 +80,19 @@ class SprintRepositoryImpl implements SprintRepository {
   @override
   Stream<Sprint?> watchActiveSprint() {
     return _datasource.watchActiveSprint();
+  }
+
+  @override
+  Future<Result<void>> addMappings(
+    String sprintId,
+    List<DayObjectiveMapping> mappings,
+  ) async {
+    try {
+      await _datasource.addMappings(sprintId, mappings);
+      return Result.success(null);
+    } catch (e) {
+      _analytics.logError(e, StackTrace.current);
+      return Result.failure(UnknownFailure(e.toString()));
+    }
   }
 }

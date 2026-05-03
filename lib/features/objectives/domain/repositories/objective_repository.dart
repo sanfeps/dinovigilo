@@ -8,4 +8,5 @@ abstract class ObjectiveRepository {
   Future<Result<void>> update(Objective objective);
   Future<Result<void>> delete(String id);
   Stream<List<Objective>> watchAll();
+  Stream<List<Objective>> watchActive();
 }

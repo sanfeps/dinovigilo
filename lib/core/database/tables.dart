@@ -5,6 +5,8 @@ class Objectives extends Table {
   TextColumn get title => text()();
   TextColumn get description => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
+  BoolColumn get isPenalty => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get expiresAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

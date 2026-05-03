@@ -45,7 +45,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   Widget build(BuildContext context) {
     final completionsAsync =
         ref.watch(monthCompletionsProvider(_currentMonth));
-    final objectivesAsync = ref.watch(objectivesStreamProvider);
+    // Use the "all" stream so historical penalty objectives still resolve
+    // their title here — the regular objectivesStreamProvider hides penalties.
+    final objectivesAsync = ref.watch(allObjectivesStreamProvider);
 
     return Scaffold(
       appBar: AppBar(

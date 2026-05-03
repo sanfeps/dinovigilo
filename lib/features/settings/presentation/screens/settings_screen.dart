@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dinovigilo/features/auth/domain/entities/auth_session.dart';
 import 'package:dinovigilo/features/auth/presentation/providers/auth_providers.dart';
 import 'package:dinovigilo/features/auth/presentation/screens/auth_screen.dart';
+import 'package:dinovigilo/features/debug/debug_screen.dart';
 import 'package:dinovigilo/features/friends/presentation/screens/friends_screen.dart';
 import 'package:dinovigilo/features/settings/presentation/providers/settings_providers.dart';
 import 'package:dinovigilo/shared/extensions/context_extensions.dart';
@@ -134,42 +135,132 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'DinoVigilo',
-                        style: context.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${context.l10n.version} 1.0.0',
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Build streaks, hatch dinosaurs',
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: AppColors.textTertiary,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
+              const _AboutCard(),
+              if (settings.developerModeEnabled) ...[
+                const SizedBox(height: 24),
+                Text(
+                  context.l10n.developerSection,
+                  style: context.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                const _DeveloperCard(),
+              ],
             ],
           ),
         ),
         loading: () => const LoadingIndicator(),
         error: (_, __) => const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+class _AboutCard extends ConsumerStatefulWidget {
+  const _AboutCard();
+
+  @override
+  ConsumerState<_AboutCard> createState() => _AboutCardState();
+}
+
+class _AboutCardState extends ConsumerState<_AboutCard> {
+  static const _tapsToUnlock = 7;
+  int _tapCount = 0;
+
+  Future<void> _handleVersionTap() async {
+    final settings = ref.read(appSettingsNotifierProvider).valueOrNull;
+    if (settings?.developerModeEnabled == true) return;
+
+    setState(() => _tapCount++);
+
+    if (_tapCount >= _tapsToUnlock) {
+      await ref
+          .read(appSettingsNotifierProvider.notifier)
+          .setDeveloperMode(true);
+      if (!mounted) return;
+      setState(() => _tapCount = 0);
+      context.showSnackBar(context.l10n.developerModeEnabled);
+    } else {
+      final remaining = _tapsToUnlock - _tapCount;
+      // Stay quiet until the user is close — avoids leaking the easter egg.
+      if (remaining <= 3) {
+        context.showSnackBar(context.l10n.tapsToEnableDev(remaining));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'DinoVigilo',
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            InkWell(
+              onTap: _handleVersionTap,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  '${context.l10n.version} 1.0.0',
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Build streaks, hatch dinosaurs',
+              style: context.textTheme.bodySmall?.copyWith(
+                color: AppColors.textTertiary,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DeveloperCard extends ConsumerWidget {
+  const _DeveloperCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.bug_report_outlined),
+            title: Text(context.l10n.debugScreen),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const DebugScreen()),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.lock_outline, color: AppColors.error),
+            title: Text(
+              context.l10n.disableDeveloperMode,
+              style: const TextStyle(color: AppColors.error),
+            ),
+            onTap: () => ref
+                .read(appSettingsNotifierProvider.notifier)
+                .setDeveloperMode(false),
+          ),
+        ],
       ),
     );
   }
